@@ -7,7 +7,6 @@ if __name__ == '__main__':
         'buffer_length': 5,
         'buffer_update_period': 0.5,
         'device_name': 'BlackHole',
-        'model_path': '../train/model.pkl',
         'chunk_length': 1.0,
         'pred_threshold': 0.9,
         'chunk_count': 20

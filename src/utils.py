@@ -6,7 +6,7 @@ def get_error_msg(e: Exception) -> str:
     return type(e).__name__ + ": " + str(e)
 
 
-def get_args(device_name, model_path, buffer_length, buffer_update_period, chunk_length, chunk_count, pred_threshold):
+def get_args(device_name, buffer_length, buffer_update_period, chunk_length, chunk_count, pred_threshold):
     def int_or_str(text):
         try:
             return int(text)
@@ -47,7 +47,7 @@ def get_args(device_name, model_path, buffer_length, buffer_update_period, chunk
             raise RuntimeError("Input device index out of range.")
         if args.input_device == -1:
             raise RuntimeError('BlackHole driver not found, and no other valid input device specified.')
-        return (dev_id, model_path, args.buffer_length, args.buffer_update_period, args.chunk_length, args.chunk_count,
+        return (dev_id, args.buffer_length, args.buffer_update_period, args.chunk_length, args.chunk_count,
                 args.prediction_threshold)
     except Exception as e:
         parser.exit(status=1, message=get_error_msg(e))

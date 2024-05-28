@@ -6,7 +6,7 @@ import numpy as np
 import queue
 
 class Shearlock(rumps.App):
-    def __init__(self, input_device, model_path: str, buffer_length, buffer_update_period, chunk_length: float,
+    def __init__(self, input_device, buffer_length, buffer_update_period, chunk_length: float,
                  chunk_cnt: int, pred_threshold: float):
         super(Shearlock, self).__init__("sHEARlock", quit_button=None)
 
@@ -34,21 +34,10 @@ class Shearlock(rumps.App):
         }
         self._listener = Listener(**self._listener_args)
 
-        self._predictor = Predictor(model_path, buffer_length,
+        self._predictor = Predictor("../train/model.pkl", buffer_length,
                                     chunk_length, self._listener.get_sample_rate(), chunk_cnt,
                                     pred_threshold)
 
-    def _detect(self, buffer: np.array):
-        result = self._predictor.fake_ratio(buffer)
-        print(result)
-
-        self.label.title = str(int(result * 100)) + "% deepfake"
-        """
-        if self._predictor.is_deepfake(buffer):
-            print("Deepfake detected")
-        else:
-            print("No deepfake")
-        """
     def _process_detection_queue(self, _):
         while not self._detection_queue.empty():
             result = self._predictor.fake_ratio(self._detection_queue.get())
@@ -56,7 +45,7 @@ class Shearlock(rumps.App):
 
     def _process_exception_queue(self, _):
         while not self._exception_queue.empty():
-            self._handle_unrecoverable_error(self._exception_queue.get())
+            self._handle_error(self._exception_queue.get())
 
     def _start_monitoring(self, _):
         if self._listener.is_alive():
@@ -84,7 +73,7 @@ class Shearlock(rumps.App):
             self._listener.stop_monitoring()
         rumps.quit_application()
 
-    def _handle_unrecoverable_error(self, e: Exception):
+    def _handle_error(self, e: Exception):
         rumps.alert(title="Unexpected error occurred", message=get_error_msg(e), ok="Abort")
         print(get_error_msg(e))
         self._quit_app(None)
